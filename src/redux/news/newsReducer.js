@@ -1,7 +1,7 @@
 import { actionTypes } from "./actionType";
 const initialState = {
   news: [],
-  filterText: "",
+  filterQuery: "",
   isLoadingNews: false,
 };
 
@@ -17,6 +17,11 @@ export const newsReducer = (state = initialState, action) => {
       return {
         ...state,
         isLoadingNews: action.payload.isLoadingNews,
+      };
+    case actionTypes.CHANGE_FILTER_QUERY_NEWS:
+      return {
+        ...state,
+        filterQuery: action.payload.text,
       };
     default:
       return state;
