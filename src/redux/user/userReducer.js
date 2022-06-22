@@ -31,6 +31,11 @@ export const userReducer = (state = initialState, action) => {
         ...state,
         user: null,
       };
+    case actionTypes.RESET_ERROR_FIELDS:
+      return {
+        ...state,
+        error: null,
+      };
     default:
       return state;
   }

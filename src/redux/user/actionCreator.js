@@ -1,14 +1,15 @@
 import { actionTypes } from "./actionType";
 import { bindActionCreators } from "redux";
 import { store } from "../index";
+import { basicLink } from "../../constants/basicLink";
 
-const getUser = (values, closeModal) => {
+const getUser = (values) => {
   return (dispatch) => {
     dispatch({
       type: actionTypes.SET_LOADING_USER,
       payload: { isLoadingUser: true },
     });
-    fetch("http://localhost:8800/api/auth/login", {
+    fetch(basicLink + "auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +29,6 @@ const getUser = (values, closeModal) => {
             type: actionTypes.LOGIN_SUCCESS,
             payload: { user: data },
           });
-          closeModal(); //! легально?
         }
       })
       .catch((err) => {
@@ -42,10 +42,15 @@ const logOut = () => ({
   payload: {},
 });
 
+const resetErrorFields = () => ({
+  type: actionTypes.RESET_ERROR_FIELDS,
+});
+
 export default bindActionCreators(
   {
     logOut,
     getUser,
+    resetErrorFields,
   },
   store.dispatch
 );
