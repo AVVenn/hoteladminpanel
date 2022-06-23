@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   CircularProgress,
@@ -6,7 +6,9 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
+import AddNewNews from "../../components/common/modals/AddNewNews";
 import News from "./News";
 import actionCreator from "../../redux/news/actionCreator";
 import { useSelector } from "react-redux";
@@ -14,50 +16,67 @@ import {
   selectNews,
   selectLoadingNews,
   selectFilterQuery,
+  selectFilteredNews,
 } from "../../redux/news/newsSelectors";
 
 const NewsList = () => {
+  const [openModal, setOpenModal] = useState(false);
   const { getNews, changeFilterQuery } = actionCreator;
   const news = useSelector(selectNews);
   const isLoading = useSelector(selectLoadingNews);
   const filterQuery = useSelector(selectFilterQuery);
+  const filteredNews = useSelector(selectFilteredNews);
 
   useEffect(() => {
-    if (news.lenght === 0) {
+    if (news.length === 0) {
       getNews();
     }
   }, []);
 
   return (
-    <Grid container spacing={1.5}>
-      <Grid item xs={12}>
-        <Typography variant="h2" align="center">
-          Все новости
-        </Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Grid container spacing={2}>
-          <Grid item xs={8}>
-            <TextField
-              label="Найти новость"
-              fullWidth
-              value={filterQuery}
-              onChange={({ target: { value } }) => changeFilterQuery(value)}
-            />
+    <>
+      <AddNewNews setOpenModal={setOpenModal} open={openModal} />
+      <Grid container spacing={1.5}>
+        <Grid item xs={12}>
+          <Typography variant="h2" align="center">
+            Все новости
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={8}>
+              <TextField
+                label="Найти новость"
+                fullWidth
+                value={filterQuery}
+                onChange={({ target: { value } }) => changeFilterQuery(value)}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{ py: 2 }}
+                onClick={() => getNews()}
+              >
+                Обновить
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} sx={{ my: 4 }}>
             <Button
               variant="contained"
               fullWidth
               sx={{ py: 2 }}
-              onClick={() => getNews()}
+              onClick={() => {
+                setOpenModal(true);
+              }}
+              endIcon={<AddCircleOutlineIcon />}
             >
-              Обновить
+              Создать новость
             </Button>
           </Grid>
         </Grid>
-      </Grid>
-      {isLoading ? (
         <Grid
           item
           xs={12}
@@ -67,26 +86,29 @@ const NewsList = () => {
             alignItems: "center",
           }}
         >
-          <CircularProgress />
+          {isLoading ? (
+            <CircularProgress />
+          ) : filteredNews.length === 0 ? (
+            <Typography align="center" variant="h6">
+              Не найдено
+            </Typography>
+          ) : (
+            <Grid container spacing={2}>
+              {filteredNews.map((newsItm) => (
+                <Grid item xs={12} sm={4}>
+                  <News
+                    title={newsItm.title}
+                    description={newsItm.description}
+                    createdAt={newsItm.createdAt}
+                    id={newsItm._id}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Grid>
-      ) : news.length === 0 ? (
-        <Grid item xs={12}>
-          <Typography align="center" variant="h6">
-            Не найдено
-          </Typography>
-        </Grid>
-      ) : (
-        news.map((newsItem) => (
-          <Grid item xs={12} sm={4} key={news._id}>
-            <News
-              createdAt={news.createdAt}
-              news={news.question}
-              id={news._id}
-            />
-          </Grid>
-        ))
-      )}
-    </Grid>
+      </Grid>
+    </>
   );
 };
 
